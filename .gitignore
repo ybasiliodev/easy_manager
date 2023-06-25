@@ -1,0 +1,6 @@
+# ignore ALL .log files
+*.log
+/vendor
+/.idea
+/composer.lock
+/env.php
