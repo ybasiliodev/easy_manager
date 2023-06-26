@@ -18,7 +18,6 @@ Técnicas Utilizadas:
 - Injeção de dependências
 - PSR7
 
-
 ## Deploy
 
 Para testar o projeto, baixe os arquivos em um servidor ou em um docker com PHP. Na raiz do projeto, rode os comandos:
@@ -58,6 +57,19 @@ Rodar o comando:
 ```bash
    php -S localhost:8000 -t .
 ```
+
+## Fluxo da aplicação
+
+- Aplicação é iniciada pelo index.php da raiz, que instancia o arquivo index.php da pasta bootstrap
+- Ao fazer uma requisição, a rota é buscada no arquivo routes.php. O grupo /api/v1 possui validação de token jwt e só vai completar a requisição se o mesmo existir e for válido
+- A rota redireciona para a função do controller definido
+- Cada função chama um serviço com a finalidade unica para que foi definido (Single Responsibility Principle)
+- Esse serviço recebe uma ou mais interfaces do repositório que representa a uma tabela no banco de dados e seus métodos (Dependency Inversion Principle).
+- Nos serviços que trabalham com criação/alteração de dados da base, um objeto model da tabela em questão é criado e no seu método construct, já existe a chamada de validação para os dados que serão inseridos
+- Feita as devidas validações no model e no service, o método do repositório e chamado e alteração na base é feita.
+- O usuário recebe a resposta da API.
+
+
 ## Documentação da API
 
 #### Chave JWT
