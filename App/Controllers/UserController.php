@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 
 final class UserController
 {
-    public function index(Request $request, Response $response)
+    public function index(Response $response): Response
     {
         try {
             $userRepository = new UserRepository();
@@ -18,41 +18,26 @@ final class UserController
             $users = $getAllUsersService->exec();
             $response->getBody()->write(json_encode($users, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(200);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Throwable $e) {
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            $response->getBody()->write(json_encode(["success" => false, "message" => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 
-    public function post(Request $request, Response $response)
+    public function post(Request $request, Response $response): Response
     {
         try {
             $data = $request->getParsedBody();
-            $inputDto = [
-                "username" => $data["username"],
-                "cpf" => $data["cpf"],
-                "email" => $data["email"],
-                "manager" => $data["manager"]
-            ];
-
             $userRepository = new UserRepository();
             $addUserService = new AddUserService($userRepository);
-            $message = $addUserService->exec($inputDto);
-            $response->getBody()->write(json_encode($message, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $message = $addUserService->exec($data);
+            $response->getBody()->write(json_encode(['success' => true, 'message' => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(200);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
         } catch (\Throwable $e) {
-            $response->getBody()->write(json_encode($e->getMessage(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            $response->getBody()->write(json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 }

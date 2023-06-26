@@ -40,8 +40,7 @@ class addProjectService
 
         $input['id'] = $input['id'] ?? 0;
         $input['title'] = $input['title'] ?? null;
-        $input['end_date'] = $input['end_date'] ? $this->dateFormatUtil->stringToDatetime($input['end_date']) : null;
-        $input['status'] = $input['status'] ?? null;
+        $input['end_date'] = isset($input['end_date']) ? $this->dateFormatUtil->stringToDatetime($input['end_date']) : null;
 
         if ($input['id']) {
             $project = $this->getValidProject((int)$input['id'], $user);
@@ -55,7 +54,7 @@ class addProjectService
             $input['id'],
             $input['title'],
             $input['end_date'],
-            $input['status'],
+            1,
             $user,
         );
 

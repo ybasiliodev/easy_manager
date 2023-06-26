@@ -7,6 +7,7 @@ use Firebase\JWT\Key;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Slim\Psr7\Response as NewResponse;
 
 class JwtAuth
 {
@@ -16,15 +17,20 @@ class JwtAuth
     public function __invoke(Request $request, Handler $handler): Response
     {
         $jwtHeader = $request->getHeaderLine('Authorization');
+        $exceptionResponse = new NewResponse();
 
         if (!$jwtHeader) {
-            throw new \Exception("JWT Token required.");
+            $exceptionResponse->getBody()->write(json_encode(['success' => false, "message" => "JWT Token required."],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $exceptionResponse->withHeader('Content-Type', 'application/json')->withStatus(401);
         }
 
         $jwt = explode('Bearer ', $jwtHeader);
 
         if (!isset($jwt[1])) {
-            throw new \Exception("JWT Token invalid.");
+            $exceptionResponse->getBody()->write(json_encode(['success' => false, "message" => "JWT Token invalid."],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $exceptionResponse->withHeader('Content-Type', 'application/json')->withStatus(401);
         }
 
         try {
@@ -33,19 +39,21 @@ class JwtAuth
             $request = $request->withAttribute('logged_id', $decoded->id);
             return $handler->handle($request);
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            $exceptionResponse->getBody()->write(json_encode(['success' => false, "message" => $e->getMessage()],
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $exceptionResponse->withHeader('Content-Type', 'application/json')->withStatus(401);
         }
     }
 
     /**
      * @throws \Exception
      */
-    private function checkToken($token)
+    private function checkToken($token): \stdClass
     {
         try {
             return JWT::decode($token, new Key(getenv('JWT_SECRET_KEY'), 'HS256'));
         } catch (\UnexpectedValueException) {
-            throw new \Exception('Forbidden: you are not authorized.', 403);
+            throw new \Exception('Forbidden: you are not authorized.');
         }
     }
 

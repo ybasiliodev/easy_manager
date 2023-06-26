@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\TaskRepositoryInterface;
 use App\Models\Task;
 
-class TaskRepository extends Connection implements \App\Interfaces\TaskRepositoryInterface
+class TaskRepository extends Connection implements TaskRepositoryInterface
 {
 
     /**
@@ -45,10 +46,10 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
     public function getClosedTasksStatusByProjectId(int $projectId): bool
     {
         try {
-            $statement = $this->pdo->prepare('SELECT * FROM task WHERE project_id = :project_id');
+            $statement = $this->pdo->prepare('SELECT count(id) FROM task WHERE project_id = :project_id');
             $statement->execute(['project_id' => $projectId]);
             $taskCount = $statement->fetchColumn();
-            $statement = $this->pdo->prepare('SELECT * FROM task WHERE project_id = :project_id AND status = 0');
+            $statement = $this->pdo->prepare('SELECT count(id) FROM task WHERE project_id = :project_id AND status = 0');
             $statement->execute(['project_id' => $projectId]);
             $closedTaskCount = $statement->fetchColumn();
 
@@ -66,7 +67,7 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
         try {
             $statement = $this->pdo->prepare(
                 'INSERT INTO task (title, description, end_date, status, user_id, project_id) 
-                       VALUES (:title, :description, :end_date, 1, :user_id, :project_id);'
+                       VALUES (:title, :description, :end_date, :status, :user_id, :project_id);'
             );
 
             $statement->execute([
@@ -74,6 +75,7 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
                 'description' => $task->getDescription(),
                 'end_date' => $task->getEndDate()->format('Y/m/d H:i:s'),
                 'user_id' => $task->getUser()->getId(),
+                'status' => $task->getStatus(),
                 'project_id' => $task->getProject()->getId()
             ]);
 
@@ -90,7 +92,7 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
     {
         try {
             $statement = $this->pdo->prepare(
-                'UPDATE task SET title = :title, description = :description, end_date = :end_date, status = :status, 
+                'UPDATE task SET title = :title, description = :description, end_date = :end_date, 
                 user_id = :user_id, project_id = :project_id WHERE id = :id;'
             );
 
@@ -99,7 +101,6 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
                 'title' => $task->getTitle(),
                 'description' => $task->getDescription(),
                 'end_date' => $task->getEndDate()->format('Y-m-d H:i:s'),
-                'status' => $task->getStatus(),
                 'user_id' => $task->getUser()->getId(),
                 'project_id' => $task->getProject()->getId()
             ]);
@@ -143,6 +144,9 @@ class TaskRepository extends Connection implements \App\Interfaces\TaskRepositor
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function endTask(int $id): string
     {
         try {

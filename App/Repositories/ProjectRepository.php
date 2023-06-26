@@ -11,7 +11,7 @@ class ProjectRepository extends Connection implements ProjectRepositoryInterface
     /**
      * @throws \Exception
      */
-    public function getAllProjects()
+    public function getAllProjects(): bool|array
     {
         try {
             return $this->pdo
@@ -34,24 +34,25 @@ class ProjectRepository extends Connection implements ProjectRepositoryInterface
 
             return $statement->fetch(\PDO::FETCH_ASSOC);
         } catch (\Exception $e) {
-            throw new \Exception("Error searching project.");
+            throw new \Exception("Error searching projects.");
         }
     }
 
     /**
      * @throws \Exception
      */
-    public function addProject(Project $project)
+    public function addProject(Project $project): string
     {
         try {
             $statement = $this->pdo->prepare(
                 'INSERT INTO project (title, end_date, status, user_id) 
-                       VALUES (:title, :end_date, 1, :user_id);'
+                       VALUES (:title, :end_date, :status, :user_id);'
             );
 
             $statement->execute([
                 'title' => $project->getTitle(),
                 'end_date' => $project->getEndDate()->format('Y/m/d H:i:s'),
+                'status' => $project->getStatus(),
                 'user_id' => $project->getUser()->getId()
             ]);
 
@@ -64,18 +65,17 @@ class ProjectRepository extends Connection implements ProjectRepositoryInterface
     /**
      * @throws \Exception
      */
-    public function updateProject(Project $project)
+    public function updateProject(Project $project): string
     {
         try {
             $statement = $this->pdo->prepare(
-                'UPDATE project SET title = :title, end_date = :end_date, status = :status, user_id = :user_id WHERE id = :id;'
+                'UPDATE project SET title = :title, end_date = :end_date, user_id = :user_id WHERE id = :id;'
             );
 
             $statement->execute([
                 'id' => $project->getId(),
                 'title' => $project->getTitle(),
                 'end_date' => $project->getEndDate()->format('Y/m/d H:i:s'),
-                'status' => $project->getStatus(),
                 'user_id' => $project->getUser()->getId()
             ]);
 
@@ -88,7 +88,7 @@ class ProjectRepository extends Connection implements ProjectRepositoryInterface
     /**
      * @throws \Exception
      */
-    public function updateProjectStatus(int $id)
+    public function updateProjectStatus(int $id): string
     {
         try {
             $statement = $this->pdo->prepare(
@@ -108,7 +108,7 @@ class ProjectRepository extends Connection implements ProjectRepositoryInterface
     /**
      * @throws \Exception
      */
-    public function deleteProject(int $id)
+    public function deleteProject(int $id): string
     {
         try {
             $statement = $this->pdo->prepare('DELETE FROM project WHERE id = :id;');

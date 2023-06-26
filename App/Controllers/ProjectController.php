@@ -24,13 +24,10 @@ final class ProjectController
             $projects = $getAllProjectsService->exec();
             $response->getBody()->write(json_encode($projects, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(200);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (\Throwable $e) {
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            $response->getBody()->write(json_encode(["success" => false, "message" => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 
@@ -42,7 +39,7 @@ final class ProjectController
             $data = $request->getParsedBody();
             $id = $route->getArgument('id');
             $data['id'] = $id ?: null;
-            $statusCode = $id ? 401 : 400;
+            $statusCode = $id ? 204 : 201;
 
             $userId = $request->getAttribute('logged_id');
             $manager = $request->getAttribute('logged_manager');
@@ -53,17 +50,13 @@ final class ProjectController
             $addProjectService = new addProjectService($projectRepository, $userRepository, $dateFormatUtil);
 
             $message = $addProjectService->exec($data,$userId,$manager);
-            $response->getBody()->write(json_encode($message, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $response->getBody()->write(json_encode(["success" => true, "message" => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus($statusCode);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus($statusCode);
         } catch (\Throwable $e) {
-            $response->getBody()->write(json_encode($e->getMessage(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $response->getBody()->write(json_encode(["success" => false, "message" => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 
@@ -79,18 +72,12 @@ final class ProjectController
             $deleteProjectService = new deleteProjectService($projectRepository);
 
             $message = $deleteProjectService->exec($id,$manager);
-            $response->getBody()->write(
-                json_encode(['success' => true, "message" => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $response->getBody()->write(json_encode(['success' => true, "message" => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(202);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
         } catch (\Throwable $e) {
             $response->getBody()->write(json_encode(['success' => false, "message" => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 
@@ -107,18 +94,13 @@ final class ProjectController
             $updateProjectStatusService = new updateProjectStatusService($projectRepository, $taskRepository);
 
             $message = $updateProjectStatusService->exec($id,$manager);
-            $response->getBody()->write(
-                json_encode(['success' => true, "message" => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $response->getBody()->write(json_encode(['success' => true, "message" => $message], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(202);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
         } catch (\Throwable $e) {
             $response->getBody()->write(json_encode(['success' => false, "message" => $e->getMessage()], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(403);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
     }
 }

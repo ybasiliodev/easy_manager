@@ -27,5 +27,5 @@ return function (App $app) {
         $group->patch('/task/{id}', [TaskController::class, 'patch']);
     })->add(new JwtAuth());
 
-    $app->post('/auth', [AuthController::class, 'index']);
+    $app->post('/api/v1/login', [AuthController::class, 'index']);
 };

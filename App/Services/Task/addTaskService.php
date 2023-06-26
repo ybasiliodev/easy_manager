@@ -49,8 +49,7 @@ class addTaskService
         $input['id'] = $input['id'] ?? 0;
         $input['title'] = $input['title'] ?? null;
         $input['description'] = $input['description'] ?? null;
-        $input['end_date'] = $input['end_date'] ? $this->dateFormatUtil->stringToDatetime($input['end_date']) : null;
-        $input['status'] = $input['status'] ?? null;
+        $input['end_date'] = isset($input['end_date']) ? $this->dateFormatUtil->stringToDatetime($input['end_date']) : null;
 
         if ($input['id']) {
             $task = $this->getValidTask((int)$input['id'], $user, $project);
@@ -68,7 +67,7 @@ class addTaskService
             $input['title'],
             $input['description'],
             $input['end_date'],
-            $input['status'],
+            1,
             $user,
             $project
         );
@@ -91,7 +90,7 @@ class addTaskService
         }
 
         if ($userData['manager']) {
-            throw new \DomainException("The user to run the task cannot be a manager");
+            throw new \DomainException("The user to run the task cannot be a manager.");
         }
 
         return new User($userData['id'], $userData['username'], $userData['cpf'], $userData['email'], $userData['manager']);

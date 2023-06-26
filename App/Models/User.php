@@ -22,8 +22,8 @@ class User
     public function __construct($id, $username, $cpf, $email, $isManager)
     {
         $this->id = $id;
-        $this->cpf = $cpf;
         $this->username = $username;
+        $this->cpf = $cpf;
         $this->email = $email;
         $this->manager = $isManager ?: 0;
         $this->validate();
@@ -31,8 +31,8 @@ class User
 
     private function validate(): void {
         if ($this->id < 0) throw new \DomainException("User id must be an valid number.");
-        if (empty($this->cpf)) throw new \DomainException("CPF id cannot be null.");
         if (empty($this->username)) throw new \DomainException("Username cannot be null.");
+        if (empty($this->cpf)) throw new \DomainException("CPF id cannot be null.");
         if (empty($this->email)) throw new \DomainException("Email cannot be null.");
     }
 

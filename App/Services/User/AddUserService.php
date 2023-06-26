@@ -17,12 +17,17 @@ class AddUserService
 
     public function exec($input): string
     {
+        $input['username'] = $input['username'] ?? null;
+        $input['cpf'] = $input['cpf'] ?? null;
+        $input['email'] = $input['email'] ?? null;
+        $input['manager'] = $input['manager'] ?? 0;
+
         $newUser = new User(
             0,
             $input['username'],
             $input['cpf'],
             $input['email'],
-            (int)$input['manager'],
+            $input['manager']
         );
 
         return $this->userRepositoryInterface->addUser($newUser);
