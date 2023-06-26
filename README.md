@@ -2,6 +2,9 @@
 # Projeto Easy Manager - Avaliação
 
 Projeto feito para Avaliação de habilidades para a vaga de DEV PHP
+O foco aqui foi utilizar o PHP puro com o auxilio da micro-framework Slim.
+Com o Slim, é possivel implementar uma API em um sistema que utiliza PHP sem o uso de grandes frameworks com muitos recursos prontos, como Laravel ou Symfony
+
 ##
 
 Tecnologias Utilizadas:
